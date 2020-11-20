@@ -397,29 +397,54 @@ REPLICATION_FACTOR = int(os.environ.get('GRAPHITE_REPLICATION_FACTOR', '1'))
 # Tag Database
 
 # set TAGDB to Redis if REDIS_TAGDB env var is set
-_REDIS_TAGDB = os.environ.get('REDIS_TAGDB', 'false').lower() in ['1', 'true', 'yes']
+#_REDIS_TAGDB = os.environ.get('REDIS_TAGDB', 'false').lower() in ['1', 'true', 'yes']
 
 # default TAGDB is local database. Set to '' to disable
-TAGDB = 'graphite.tags.redis.RedisTagDB' if _REDIS_TAGDB else \
-    os.environ.get('GRAPHITE_TAGDB', 'graphite.tags.localdatabase.LocalDatabaseTagDB')
+#TAGDB = 'graphite.tags.redis.RedisTagDB' if _REDIS_TAGDB else \
+#    os.environ.get('GRAPHITE_TAGDB', 'graphite.tags.localdatabase.LocalDatabaseTagDB')
 
 # Time to cache seriesByTag results
-TAGDB_CACHE_DURATION = int(os.environ.get('GRAPHITE_TAGDB_CACHE_DURATION') or 60)
+#TAGDB_CACHE_DURATION = int(os.environ.get('GRAPHITE_TAGDB_CACHE_DURATION') or 60)
 
 # Autocomplete default result limit
-TAGDB_AUTOCOMPLETE_LIMIT = int(os.environ.get('GRAPHITE_TAGDB_AUTOCOMPLETE_LIMIT') or 100)
+#TAGDB_AUTOCOMPLETE_LIMIT = int(os.environ.get('GRAPHITE_TAGDB_AUTOCOMPLETE_LIMIT') or 100)
 
 # Settings for Redis TagDB
-TAGDB_REDIS_HOST = os.environ.get('GRAPHITE_TAGDB_REDIS_HOST', 'localhost')
-TAGDB_REDIS_PORT = int(os.environ.get('GRAPHITE_TAGDB_REDIS_PORT') or 6379)
-TAGDB_REDIS_DB = int(os.environ.get('GRAPHITE_TAGDB_REDIS_DB') or 0)
-
+#TAGDB_REDIS_HOST = os.environ.get('GRAPHITE_TAGDB_REDIS_HOST', 'localhost')
+#TAGDB_REDIS_PORT = int(os.environ.get('GRAPHITE_TAGDB_REDIS_PORT') or 6379)
+#TAGDB_REDIS_DB = int(os.environ.get('GRAPHITE_TAGDB_REDIS_DB') or 0)
+#
 # Settings for HTTP TagDB
-TAGDB_HTTP_URL = os.environ.get('GRAPHITE_TAGDB_HTTP_URL', '')
-TAGDB_HTTP_USER = os.environ.get('GRAPHITE_TAGDB_HTTP_USER', '')
-TAGDB_HTTP_PASSWORD = os.environ.get('GRAPHITE_TAGDB_HTTP_PASSWORD', '')
+#TAGDB_HTTP_URL = os.environ.get('GRAPHITE_TAGDB_HTTP_URL', '')
+#TAGDB_HTTP_USER = os.environ.get('GRAPHITE_TAGDB_HTTP_USER', '')
+#TAGDB_HTTP_PASSWORD = os.environ.get('GRAPHITE_TAGDB_HTTP_PASSWORD', '')
 # Does the remote TagDB support autocomplete?
-TAGDB_HTTP_AUTOCOMPLETE = os.environ.get('GRAPHITE_TAGDB_HTTP_AUTOCOMPLETE', 'false').lower() in ['1', 'true', 'yes']
+#TAGDB_HTTP_AUTOCOMPLETE = os.environ.get('GRAPHITE_TAGDB_HTTP_AUTOCOMPLETE', 'false').lower() in ['1', 'true', 'yes']
+
+# Settings for IronDB
+STORAGE_FINDERS = (
+    'irondb.IronDBFinder',
+)
+
+TAGDB = 'irondb.IRONdbTagFetcher'
+
+IRONDB_URLS = (
+    'http://<irondb-host>:<port>/graphite/<account>/<optional_query_prefix>',
+    'http://<irondb-host2>:<port>/graphite/<account>/<optional_query_prefix>'
+)
+
+# Optional.  You need CIRCONUS_TOKEN if you are using this with the
+# Circonus Saas or Inside products.  See below.
+# If you are not using Circonus SaaS or Inside you can omit this setting
+CIRCONUS_TOKEN = ''
+
+IRONDB_BATCH_SIZE = 250
+IRONDB_USE_DATABASE_ROLLUPS = True
+IRONDB_USE_ACTIVITY_TRACKING = True
+IRONDB_TIMEOUT_MS = 10000
+IRONDB_CONNECTION_TIMEOUT_MS = 3005
+IRONDB_MAX_RETRIES = 2
+IRONDB_QUERY_LOG = False
 
 #####################################
 # Function plugins #
@@ -436,22 +461,22 @@ LOG_DIR = '/var/log/graphite'
 _SECRET_KEY = '$(date +%s | sha256sum | base64 | head -c 64)'
 SECRET_KEY = os.environ.get('GRAPHITE_SECRET_KEY', _SECRET_KEY)
 
-if (os.getenv("MEMCACHE_HOST") is not None):
-    MEMCACHE_HOSTS = os.getenv("MEMCACHE_HOST").split(",")
+#if (os.getenv("MEMCACHE_HOST") is not None):
+#    MEMCACHE_HOSTS = os.getenv("MEMCACHE_HOST").split(",")
 
-if (os.getenv("DEFAULT_CACHE_DURATION") is not None):
-    DEFAULT_CACHE_DURATION = int(os.getenv("CACHE_DURATION"))
+#if (os.getenv("DEFAULT_CACHE_DURATION") is not None):
+#    DEFAULT_CACHE_DURATION = int(os.getenv("CACHE_DURATION"))
 
-STATSD_HOST = os.environ.get('GRAPHITE_STATSD_HOST', '127.0.0.1')
-if STATSD_HOST != '':
-    from graphite.app_settings import *
-    MIDDLEWARE = (
-        'django_statsd.middleware.GraphiteRequestTimingMiddleware',
-        'django_statsd.middleware.GraphiteMiddleware',
-        ) + MIDDLEWARE
-    try:
-        MIDDLEWARE_CLASSES
-    except NameError:
-        pass
-    else:
-        MIDDLEWARE_CLASSES = MIDDLEWARE
+#STATSD_HOST = os.environ.get('GRAPHITE_STATSD_HOST', '127.0.0.1')
+#if STATSD_HOST != '':
+#    from graphite.app_settings import *
+#    MIDDLEWARE = (
+#        'django_statsd.middleware.GraphiteRequestTimingMiddleware',
+#        'django_statsd.middleware.GraphiteMiddleware',
+#        ) + MIDDLEWARE
+#    try:
+#        MIDDLEWARE_CLASSES
+#    except NameError:
+#        pass
+#    else:
+#        MIDDLEWARE_CLASSES = MIDDLEWARE

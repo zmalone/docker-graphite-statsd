@@ -4,11 +4,13 @@ LABEL maintainer="Denys Zhdanov <denis.zhdanov@gmail.com>"
 
 RUN true \
  && apk add --update --no-cache \
+      build-base \
       cairo \
       cairo-dev \
       collectd \
       collectd-disk \
       collectd-nginx \
+      cmake \
       findutils \
       librrd \
       logrotate \
@@ -133,6 +135,17 @@ RUN git clone "${brubeck_repo}" /usr/local/src/brubeck \
  && ./script/bootstrap \
  && chmod +x brubeck && mkdir -p /opt/graphite/bin/ \
  && cp -fv brubeck /opt/graphite/bin/brubeck
+
+# flatcc setup
+RUN git clone https://github.com/dvidelabs/flatcc.git /usr/local/src/flatcc \
+ && cd /usr/local/src/flatcc && scripts/initbuild.sh make \
+ && scripts/build.sh \
+ && find / -name flatcc
+
+# graphite-irondb plugin
+RUN git clone http://github.com/circonus-labs/graphite-irondb /usr/local/src/graphite-irondb \
+ && cd /usr/local/src/graphite-irondb \
+ && . /opt/graphite/bin/activate && $python_binary setup.py install --with-flatcc=/usr/local/src/flatcc/
 
 COPY conf/opt/graphite/conf/                             /opt/defaultconf/graphite/
 COPY conf/opt/graphite/webapp/graphite/local_settings.py /opt/defaultconf/graphite/local_settings.py
